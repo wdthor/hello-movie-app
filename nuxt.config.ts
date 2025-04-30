@@ -1,6 +1,22 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/icon',
+    '@nuxt/test-utils',
+    '@nuxtjs/tailwindcss',
+    'vuetify-nuxt-module',
+    '@pinia/nuxt'],
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/test-utils']
-})
+  compatibilityDate: '2024-11-01',
+  eslint: {
+    config: {
+      stylistic: {
+        indent: 2,
+        semi: true,
+        commaDangle: 'always-multiline',
+        quotes: 'single',
+      },
+    },
+  },
+});
