@@ -1,13 +1,21 @@
+// stores/movies.ts
 import { defineStore } from 'pinia';
-import type { Movie, MoviesResponse } from '~/types/movie';
+import { v4 as uuidv4 } from 'uuid';
+import type {
+  Movie,
+  MovieDetails,
+  MoviesResponse,
+  MovieComment,
+} from '~/types/movie';
 
 export const useMoviesStore = defineStore('movies', () => {
   const movies = ref<Movie[]>([]);
+  const searchResults = ref<Movie[]>([]);
+  const currentMovie = ref<MovieDetails | null>(null);
   const loading = ref(false);
   const searching = ref(false);
   const currentPage = ref(1);
-  const totalPages = ref(1);
-  const searchResults = ref<Movie[]>([]);
+  const totalPages = ref(0);
   const searchQuery = ref('');
   const searchPage = ref(1);
 
@@ -30,6 +38,9 @@ export const useMoviesStore = defineStore('movies', () => {
       } else {
         movies.value = [...movies.value, ...response.results];
       }
+
+      currentPage.value = response.page;
+      totalPages.value = response.total_pages;
     } catch (error) {
       console.error(
         'Erreur lors de la récupération des films populaires:',
@@ -42,7 +53,6 @@ export const useMoviesStore = defineStore('movies', () => {
 
   async function searchMovies(query: string, page: number = 1) {
     if (searching.value || !query.trim()) return;
-    console.log('IN SEARCH');
 
     searching.value = true;
 
@@ -67,6 +77,52 @@ export const useMoviesStore = defineStore('movies', () => {
     }
   }
 
+  async function fetchMovieDetails(id: number) {
+    loading.value = true;
+
+    try {
+      const movieDetails = await $fetch<MovieDetails>(`/api/movies/${id}`);
+      currentMovie.value = movieDetails;
+    } catch (error) {
+      console.error(
+        `Erreur lors de la récupération des détails du film ${id}:`,
+        error
+      );
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function getMovieComments(movieId: number): MovieComment[] {
+    const storageKey = `movie_comments_${movieId}`;
+    const storedComments = localStorage.getItem(storageKey);
+
+    if (storedComments) {
+      return JSON.parse(storedComments);
+    }
+
+    return [];
+  }
+
+  function addMovieComment(
+    movieId: number,
+    comment: Omit<MovieComment, 'id' | 'timestamp'>
+  ) {
+    const storageKey = `movie_comments_${movieId}`;
+    const comments = getMovieComments(movieId);
+
+    const newComment: MovieComment = {
+      ...comment,
+      id: uuidv4(),
+      timestamp: Date.now(),
+    };
+
+    comments.unshift(newComment);
+    localStorage.setItem(storageKey, JSON.stringify(comments));
+
+    return newComment;
+  }
+
   function resetSearch() {
     searchQuery.value = '';
     searchResults.value = [];
@@ -84,6 +140,7 @@ export const useMoviesStore = defineStore('movies', () => {
   return {
     movies,
     searchResults,
+    currentMovie,
     loading,
     searching,
     currentPage,
@@ -93,6 +150,9 @@ export const useMoviesStore = defineStore('movies', () => {
     isSearching,
     fetchPopularMovies,
     searchMovies,
+    fetchMovieDetails,
+    getMovieComments,
+    addMovieComment,
     resetSearch,
     loadMore,
   };

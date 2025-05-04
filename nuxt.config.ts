@@ -10,16 +10,6 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: true },
   compatibilityDate: '2024-11-01',
-  eslint: {
-    config: {
-      stylistic: {
-        indent: 2,
-        semi: true,
-        commaDangle: 'always-multiline',
-        quotes: 'single',
-      },
-    },
-  },
   runtimeConfig: {
     tmdbApiKey: process.env.TMDB_API_KEY,
     public: {
