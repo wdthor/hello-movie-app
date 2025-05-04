@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
     '@nuxtjs/tailwindcss',
     'vuetify-nuxt-module',
-    '@pinia/nuxt'],
+    '@pinia/nuxt',
+  ],
   devtools: { enabled: true },
   compatibilityDate: '2024-11-01',
   eslint: {
@@ -21,10 +22,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     tmdbApiKey: process.env.TMDB_API_KEY,
-    tinymceApiKey: process.env.TINYMCE_API_KEY,
     public: {
       tmdbBaseUrl: 'https://api.themoviedb.org/3',
-      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p'
+      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p',
     },
-  }
+  },
 });
